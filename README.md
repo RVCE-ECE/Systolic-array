@@ -1,42 +1,89 @@
-![](../../workflows/gds/badge.svg) ![](../../workflows/docs/badge.svg) ![](../../workflows/test/badge.svg) ![](../../workflows/fpga/badge.svg)
+# Reconfigurable Mixed-Precision 2×2 Weight-Stationary Systolic MAC Array
 
-# Tiny Tapeout Verilog Project   Template
+**Tiny Tapeout submission | SkyWater 130nm | TTSKY26c shuttle**
 
-- [Read the documentation for project](docs/info.md)
+## Project Documentation
+
+- [Read the full project documentation](docs/info.md)
+- [Verification summary and report](docs/verification.md)
+
+## What is this?
+
+This project implements a **2×2 weight-stationary systolic array** of multiply-accumulate (MAC) processing elements that can switch between two numeric precisions at runtime.
+
+Each processing element holds a stationary weight and streams activations through the array, accumulating partial sums as data flows from PE to PE. This is the classic **systolic dataflow** used in modern NPU/TPU-style accelerators, scaled down to fit within a single Tiny Tapeout tile.
+
+### Key Features
+
+- **2×2 systolic MAC array**
+- **Weight-stationary dataflow**
+- **Runtime-reconfigurable mixed precision**
+- Supports **4-bit and 2-bit operation**
+- **Shared masked multiplier** for both precision modes
+- **Zero-operand skip mechanism** to reduce unnecessary switching activity
+- Designed within a single Tiny Tapeout tile
+
+Rather than instantiating separate multipliers for 4-bit and 2-bit operation, precision switching is implemented through a **shared masked multiplier**. The same multiplier hardware is reused for both modes, with input masking gating the unused bits when operating at lower precision.
+
+A **zero-operand skip mechanism** gates the accumulate path whenever an operand is zero, avoiding unnecessary switching activity during those cycles.
+
+## Research Contribution
+
+2×2 systolic arrays have appeared previously on Tiny Tapeout. This project combines:
+
+1. Runtime-reconfigurable mixed precision
+2. Shared masked multiplier hardware
+3. Weight-stationary dataflow
+4. Zero-operand skip gating
+
+The combination is designed to provide multiple precision modes and reduce unnecessary switching activity while remaining within a fixed Tiny Tapeout silicon budget.
+
+A feature-comparison table against prior systolic-array submissions is included in the project documentation.
+
+## Design Summary
+
+| Parameter | Details |
+|---|---|
+| **Top Module** | `tt_um_dilip951_cpu_systolic_array` |
+| **Array Size** | 2×2 |
+| **Precision Modes** | 4-bit and 2-bit |
+| **Dataflow** | Weight-stationary |
+| **Standard Cells** | 608 |
+| **Flip-Flops** | 62 |
+| **Die Area** | ~117 × 128 µm |
+| **PDK** | SkyWater `sky130A` |
+| **Shuttle** | TTSKY26c |
+| **Verification** | Cocotb |
+| **Functional Tests** | 2/2 passing |
+
+## Physical Design and Verification
+
+The design was verified through the Tiny Tapeout GitHub Actions flow using **LibreLane 3.0.5**.
+
+The following checks were completed successfully:
+
+- DRC
+- LVS
+- Antenna checks
+- GDS generation
+- Tiny Tapeout precheck (**15/15**)
+- Gate-level simulation (`gl_test`)
+- Design viewer
+
+The results were independently cross-checked using an **OpenLane2 Colab flow**, with matching flip-flop count and die area, and a clean LVS result.
 
 ## What is Tiny Tapeout?
 
-Tiny Tapeout is an educational project that aims to make it easier and cheaper than ever to get your digital and analog designs manufactured on a real chip.
+Tiny Tapeout is an educational project that aims to make it easier and cheaper than ever to get digital and analog designs manufactured on a real chip.
 
-To learn more and get started, visit https://tinytapeout.com.
+To learn more and get started, visit:
 
-## Set up your Verilog project
-
-1. Add your Verilog files to the `src` folder.
-2. Edit the [info.yaml](info.yaml) and update information about your project, paying special attention to the `source_files` and `top_module` properties. If you are upgrading an existing Tiny Tapeout project, check out our [online info.yaml migration tool](https://tinytapeout.github.io/tt-yaml-upgrade-tool/).
-3. Edit [docs/info.md](docs/info.md) and add a description of your project.
-4. Adapt the testbench to your design. See [test/README.md](test/README.md) for more information.
-
-The GitHub action will automatically build the ASIC files using [LibreLane](https://www.zerotoasiccourse.com/terminology/librelane/).
-
-## Enable GitHub actions to build the results page.
-
-- [Enabling GitHub Pages](https://tinytapeout.com/faq/#my-github-action-is-failing-on-the-pages-part)
+https://tinytapeout.com
 
 ## Resources
 
-- [FAQ](https://tinytapeout.com/faq/)
-- [Digital design lessons](https://tinytapeout.com/digital_design/)
-- [Learn how semiconductors work](https://tinytapeout.com/siliwiz/)
-- [Join the community](https://tinytapeout.com/discord)
-- [Build your design locally](https://www.tinytapeout.com/guides/local-hardening/)
-
-## What next?
-
-- [Submit your design to the next shuttle](https://app.tinytapeout.com/).
-- Edit [this README](README.md) and explain your design, how it works, and how to test it.
-- Share your project on your social network of choice:
-  - LinkedIn [#tinytapeout](https://www.linkedin.com/search/results/content/?keywords=%23tinytapeout) [@TinyTapeout](https://www.linkedin.com/company/100708654/)
-  - Mastodon [#tinytapeout](https://chaos.social/tags/tinytapeout) [@matthewvenn](https://chaos.social/@matthewvenn)
-  - X (formerly Twitter) [#tinytapeout](https://twitter.com/hashtag/tinytapeout) [@tinytapeout](https://twitter.com/tinytapeout)
-  - Bluesky [@tinytapeout.com](https://bsky.app/profile/tinytapeout.com)
+- [Tiny Tapeout FAQ](https://tinytapeout.com/faq/)
+- [Digital Design Lessons](https://tinytapeout.com/digital_design/)
+- [Learn How Semiconductors Work](https://tinytapeout.com/siliwiz/)
+- [Tiny Tapeout Community](https://tinytapeout.com/discord)
+- [Build Your Design Locally](https://www.tinytapeout.com/guides/local-hardening/)
